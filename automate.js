@@ -1,4 +1,5 @@
 var AutoMate = {
+
   JSON: {
     build: function(dsl) {
       var model = {"Resources" : {}};
