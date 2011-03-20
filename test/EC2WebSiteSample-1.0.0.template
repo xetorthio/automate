@@ -1,7 +1,7 @@
 {
  "AWSTemplateFormatVersion" : "2010-09-09",
 
- "Description" : "Create an EC2 instance running a simple Apache webserver. The AMI is chosen based on the region in which the stack is run. This example creates an EC2 security group for the instance to give you SSH access and an Elastic IP to access the instance.",
+ "Description" : "This is a test",
 
  "Parameters" : {
    "WebServerPort" : {
