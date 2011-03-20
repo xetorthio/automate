@@ -1,7 +1,8 @@
-var lib=require('../src/automate.js');
+var lib = require('../src/automate.js'),
+    assert = require('assert'),
+    fs = require('fs');
 
-lib.AutoMate.EC2.build(function(){
-
+var json = lib.AutoMate.EC2.build(function(){
   var sg = securityGroup("InstanceSecurityGroup", "Enable SSH access and HTTP access on the inbound port", function() {
     tcp(22, 22, "0.0.0.0/0");
   });
@@ -22,3 +23,8 @@ lib.AutoMate.EC2.build(function(){
     instances:[i1,i2]
   });
 });
+
+var am_template = JSON.parse(json);
+var template = JSON.parse(fs.readFileSync("EC2WebSiteSample-1.0.0.template", 'utf8'));
+
+assert.deepEqual(template, am_template);
