@@ -1,4 +1,4 @@
-var lib=require('./automate.js');
+var lib=require('../src/automate.js');
 
 lib.AutoMate.EC2.build(function(){
 
