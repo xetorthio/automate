@@ -24,9 +24,7 @@ var AutoMate= {
 			  "Type":"AWS::EC2::Instance",
 			  "Properties": {
 					"SecurityGroups" : [ ],
-
 					"KeyName" : { Ref: "KeyName" },
-
 					"ImageId" : "ami-7a11e213",
 					"InstanceType" : "t1.micro",
 					"UserData" : { "Fn::Base64" : { "Ref" : "WebServerPort" }}

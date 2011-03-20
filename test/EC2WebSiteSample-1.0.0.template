@@ -70,6 +70,7 @@
    "URL" : {
      "Description" : "URL of the sample website",
      "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIP" }, ":", { "Ref" : "WebServerPort" }]]}
+     "Value" : { "Ref" : "Ec2Instance" } 
    }
 
  }
