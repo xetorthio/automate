@@ -1,0 +1,84 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script src="springy.js"></script>
+<script src="springyui.js"></script>
+
+<script src="automate.js"></script>
+
+<script>
+
+var json = AutoMate.EC2.build({
+	parameters: function() { 
+		string("WebServerPort", "TCP/IP port of the web server", "8888");
+		string("KeyName", "Name of an existing EC2 KeyPair to enable SSH access to the instance");
+	},
+	
+	resources: function(params) {
+	  var sg = securityGroup("InstanceSecurityGroup", "Enable SSH access and HTTP access on the inbound port", function() {
+		tcp(22, 22, "0.0.0.0/0");
+	  });
+	
+	  var i1 = instance("Ec2Instance1", {
+		securityGroups:[sg],
+		ami:"ami-7a11e213",
+		type:"t1.micro",
+		key_name: params.KeyName,
+		user_data: 
+	  });
+	
+	  var i2 = instance("Ec2Instance2", {
+		securityGroups:[sg],
+		ami:"ami-7a11e213",
+		userData:{}
+	  });
+	
+	  var lb = loadbalancer("ElasticLoadBalancer", {
+		instances:[i1,i2]
+	  }
+	  
+	  var eip= elasticIp("EIP", i2);
+	  
+	},
+	
+	output: function(param, resources) {
+		ref("URL", "URL of the sample website", ref(resources.EIP.InstanceId));
+		refAttr("PUBLIC", "Public dns", refAttr(resources.Ec2Instance2.publicDns));
+		
+		
+	}
+ 
+);
+});
+
+console.log(json);
+
+jQuery(document).ready(function(){
+  
+  $('#draw').click(function() {
+    var graph = new Graph(); 
+    $('#springydemo').springy({ 'graph': graph });
+    eval($("#code").val());
+	  function instance(data) {
+		return graph.newNode({label:data.ami});
+	  }
+	  function securityGroup(data) {
+		return null;
+	  }
+	  function loadbalancer(data) {
+		return null;
+	  }
+
+  });
+});
+
+</script>
+</head>
+<body>
+<form>
+<textarea rows="10" cols="50" id="code"></textarea>
+<input type="button" value="draw" id="draw" />
+</form>
+<canvas id="springydemo" width="640" height="300" />
+</body>
+</html>

@@ -53,26 +53,5 @@
        "InstanceId" : { "Ref" : "Ec2Instance" }
      }
    }
- },
-
- "Outputs" : {
-
-   "InstanceId" : {
-     "Description" : "InstanceId of the newly created EC2 instance",
-     "Value" : { "Ref" : "Ec2Instance" }
-   },
-
-   "AZ" : {
-     "Description" : "Availability Zone of the newly created EC2 instance",
-     "Value" : { "Fn::GetAtt" : [ "Ec2Instance", "AvailabilityZone" ] }
-   },
-
-   "URL" : {
-     "Description" : "URL of the sample website",
-     "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIP" }, ":", { "Ref" : "WebServerPort" }]]}
-     "Value" : { "Ref" : "Ec2Instance" } 
-   }
-
  }
-
 }
