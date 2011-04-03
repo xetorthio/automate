@@ -15,8 +15,8 @@ var AutoMate= {
             "SecurityGroups" : [ ],
             "KeyName" : unRef(data.keyName),
             "ImageId" : unRef(data.ami),
-            "InstanceType" : unRef(data.instanceType),
-            "UserData" : { "Fn::Base64" : { "Ref" : "WebServerPort" }} //TODO: Implement
+            "InstanceType" : unRef(data.instanceType)
+            //"UserData" : { "Fn::Base64" : { "Ref" : "WebServerPort" }} //TODO: Implement
           }
         }
 

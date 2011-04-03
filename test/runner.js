@@ -18,4 +18,9 @@ eval("var json = lib."+ amScript);
 var am_template = JSON.parse(json);
 var template = JSON.parse(fs.readFileSync(fileName+".template", 'utf8'));
 
-assert.deepEqual(template, am_template, "The generated template is different than the expected one.");
+try {
+  assert.deepEqual(template, am_template, "The generated template is different than the expected one.");
+} catch(e) {
+  fs.writeFileSync("./test.log", json, 'utf-8');
+  throw e;
+}
