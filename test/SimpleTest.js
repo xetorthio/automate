@@ -1,9 +1,4 @@
-var lib = require('../src/automate.js'),
-    assert = require('assert'),
-    fs = require('fs');
-
-
-var json = lib.AutoMate.EC2.build("simple test", {
+AutoMate.EC2.build("simple test", {
   parameters: function() { 
       string("WebServerPort", "port of the web server", "8888");
       string("KeyName", "key name");
@@ -27,8 +22,3 @@ var json = lib.AutoMate.EC2.build("simple test", {
     var eip= elasticIp("EIP", ws);
   }
 });
-
-var am_template = JSON.parse(json);
-var template = JSON.parse(fs.readFileSync("SimpleTest.template", 'utf8'));
-
-assert.deepEqual(template, am_template, "The generated template is different than the expected one.");
