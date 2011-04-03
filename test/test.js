@@ -28,7 +28,6 @@ var json = lib.AutoMate.EC2.build("simple test", {
   }
 });
 
-
 var am_template = JSON.parse(json);
 var template = JSON.parse(fs.readFileSync("SimpleTest.template", 'utf8'));
 
