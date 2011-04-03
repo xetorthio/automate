@@ -9,54 +9,54 @@ var AutoMate= {
 		  var model = {"AWSTemplateFormatVersion": "2010-09-09",  "Description" : description, "Resources" : {}, "Parameters" : {} };
 		  
 		  Object.prototype.instance = function(name, data) {
+        model.Resources[name] = {
+          "Type":"AWS::EC2::Instance",
+          "Properties": {
+            "SecurityGroups" : [ ],
+            "KeyName" : unRef(data.keyName),
+            "ImageId" : unRef(data.ami),
+            "InstanceType" : unRef(data.instanceType),
+            "UserData" : { "Fn::Base64" : { "Ref" : "WebServerPort" }} //TODO: Implement
+          }
+        }
 
-			model.Resources[name] = {
-			  "Type":"AWS::EC2::Instance",
-			  "Properties": {
-					"SecurityGroups" : [ ],
-					"KeyName" : unRef(data.key_name),
-					"ImageId" : unRef(data.ami),
-					"InstanceType" : unRef(data.instance_type),
-					"UserData" : { "Fn::Base64" : { "Ref" : "WebServerPort" }} //TODO: Implement
-			  }
-			}
 
-			for(sg in data.securityGroups) {
-			  model.Resources[name].Properties.SecurityGroups.push({"Ref":sg.name});
-			}
+        for(var sgi=0; sgi<data.securityGroups.length; sgi++) {
+          model.Resources[name].Properties.SecurityGroups.push(unRef(data.securityGroups[sgi]));
+        }
 
-			model.Resources[name].reference= function() {
-                return {"Ref":name};
-            }
+        model.Resources[name].reference= function() {
+          return {"Ref":name};
+        }
 
-			return {"name":name,"data":data};
+        return model.Resources[name];
 		  }
 		  
 		  Object.prototype.securityGroup = function(name, description, rules) {
-			model.Resources[name] = {
-			  "Type":"AWS::EC2::SecurityGroup",
-			  "Properties": {
-				"GroupDescription":description,
-				"SecurityGroupIngress":[]
+        model.Resources[name] = {
+          "Type":"AWS::EC2::SecurityGroup",
+          "Properties": {
+            "GroupDescription":description,
+            "SecurityGroupIngress":[]
+          }
+			  };
+			  var sg = model.Resources[name].Properties.SecurityGroupIngress;
+		  	Object.prototype.tcp = function(from, to, ip) {
+          sg.push({
+            "IpProtocol" : "tcp",
+            "FromPort" : unRef(from),
+            "ToPort" : unRef(to),
+            "CidrIp" : unRef(ip)
+          });
 			  }
-			};
-			var sg = model.Resources[name].Properties.SecurityGroupIngress;
-			Object.prototype.tcp = function(from, to, ip) {
-			  sg.push({
-				"IpProtocol" : "tcp",
-				"FromPort" : from,
-				"ToPort" : to,
-				"CidrIp" : ip
-			  });
-			}
 
-			rules();
+			  rules();
 
-			model.Resources[name].reference= function() {
-                return {"Ref":name};
-            }
+			  model.Resources[name].reference= function() {
+          return {"Ref":name};
+        }
 
-			return {"name":name, "description":description, "rules":rules};
+			  return model.Resources[name];
 		  }
 		  
 		  
@@ -67,8 +67,8 @@ var AutoMate= {
 				"Instances":[]
 			  }
 			};
-			for(ins in data.instances) {
-			  model.Resources[name].Properties.Instances.push({"Ref":ins.name});
+			for(var ins=0; ins<data.instances.length; ins++) {
+			  model.Resources[name].Properties.Instances.push(unRef(data.instances[ins]));
 			}
 
 			model.Resources[name].reference= function() {

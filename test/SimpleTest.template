@@ -1,26 +1,26 @@
 {
  "AWSTemplateFormatVersion" : "2010-09-09",
 
- "Description" : "This is a test",
+ "Description" : "simple test",
 
  "Parameters" : {
    "WebServerPort" : {
-     "Description" : "TCP/IP port of the web server",
+     "Description" : "port of the web server",
      "Type" : "String",
      "Default" : "8888"
    },
 
    "KeyName" : {
-     "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+     "Description" : "key name",
      "Type" : "String"
    }
  },
 
  "Resources" : {
-   "Ec2Instance" : {
+   "ws" : {
      "Type" : "AWS::EC2::Instance",
      "Properties" : {
-       "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+       "SecurityGroups" : [ { "Ref" : "defaultSG" } ],
        "KeyName" : { "Ref" : "KeyName" },
        "ImageId" : "ami-7a11e213",
        "InstanceType" : "t1.micro",
@@ -28,10 +28,10 @@
      }
    },
 
-   "InstanceSecurityGroup" : {
+   "defaultSG" : {
      "Type" : "AWS::EC2::SecurityGroup",
      "Properties" : {
-       "GroupDescription" : "Enable SSH access and HTTP access on the inbound port",
+       "GroupDescription" : "default sg",
        "SecurityGroupIngress" : [ {
          "IpProtocol" : "tcp",
          "FromPort" : "22",
@@ -50,7 +50,7 @@
    "EIP" : {
      "Type" : "AWS::EC2::EIP",
      "Properties" : {
-       "InstanceId" : { "Ref" : "Ec2Instance" }
+       "InstanceId" : { "Ref" : "ws" }
      }
    }
  }
