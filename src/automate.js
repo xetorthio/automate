@@ -61,45 +61,67 @@ var AutoMate= {
 		  
 		  
 		  Object.prototype.loadbalancer = function(name, data) {
-			model.Resources[name] = {
-			  "Type":"ElasticLoadBalancer",
-			  "Properties": {
-				"Instances":[]
+        model.Resources[name] = {
+          "Type":"AWS::ElasticLoadBalancing::LoadBalancer",
+          "Properties": {
+            "Instances": [],
+            "Listeners": [],
+            "HealthCheck": {}
+          }
+        };
+
+        for(var ins=0; ins<data.instances.length; ins++) {
+          model.Resources[name].Properties.Instances.push(unRef(data.instances[ins]));
+        }
+
+        var listeners = model.Resources[name].Properties.Listeners;
+		  	Object.prototype.http = function(input, output) {
+          listeners.push({
+            "LoadBalancerPort" : unRef(input),
+            "InstancePort" : unRef(output),
+            "Protocol" : "HTTP"
+          });
 			  }
-			};
-			for(var ins=0; ins<data.instances.length; ins++) {
-			  model.Resources[name].Properties.Instances.push(unRef(data.instances[ins]));
-			}
 
-			model.Resources[name].reference= function() {
-                return {"Ref":name};
-            }
+        data.listeners();
 
-			return {"name":name,"data":data};
+        var hc = model.Resources[name].Properties.HealthCheck;
+
+        hc.Target = unRef(data.healthCheck.target);
+        hc.HealthyThreshold = unRef(data.healthCheck.healthyThreshold);
+        hc.UnhealthyThreshold = unRef(data.healthCheck.unhealthyThreshold);
+        hc.Interval = unRef(data.healthCheck.interval);
+        hc.Timeout = unRef(data.healthCheck.timeout);
+
+        model.Resources[name].reference= function() {
+          return {"Ref":name};
+        }
+
+        return model.Resources[name];
 		  }
 
-          Object.prototype.elasticIp = function(name, resource) {
-			model.Resources[name]= {};
-			model.Resources[name].Type= "AWS::EC2::EIP";
-			model.Resources[name].Properties= {};
-			model.Resources[name].Properties.InstanceId= unRef(resource);
+      Object.prototype.elasticIp = function(name, resource) {
+        model.Resources[name]= {};
+        model.Resources[name].Type= "AWS::EC2::EIP";
+        model.Resources[name].Properties= {};
+        model.Resources[name].Properties.InstanceId= unRef(resource);
 
-			model.Resources[name].reference= function() {
-                return {"Ref":name};
-            }
-			return model.Resources[name];
+        model.Resources[name].reference= function() {
+          return {"Ref":name};
+        }
+        return model.Resources[name];
 		  }
 
 		  Object.prototype.string = function(name, description, defaultValue) {
-			model.Parameters[name]= {};
-			model.Parameters[name].Description= description;
-			model.Parameters[name].Type= "String";
-			if(defaultValue) 
-				model.Parameters[name].Default= defaultValue;
+        model.Parameters[name]= {};
+        model.Parameters[name].Description= description;
+        model.Parameters[name].Type= "String";
+        if(defaultValue) 
+          model.Parameters[name].Default= defaultValue;
 
-			model.Parameters[name].reference= function() {
-				return {"Ref":name};
-			}
+        model.Parameters[name].reference= function() {
+          return {"Ref":name};
+        }
 		  }
 
 		  dsl.parameters();

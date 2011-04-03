@@ -15,8 +15,7 @@ AutoMate.EC2.build("simple test", {
       securityGroups:[defaultSG],
       ami:"ami-7a11e213",
       instanceType: "t1.micro",
-      keyName: params.KeyName,	
-      userData: ""
+      keyName: params.KeyName
     });
     
     var eip= elasticIp("EIP", ws);

@@ -1,0 +1,83 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "load balancer test",
+
+  "Parameters" : {
+    "KeyName" : {
+      "Description" : "key name",
+      "Type" : "String"
+    }
+  },
+
+  "Resources" : {
+
+    "balancer" : {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "Instances" : [ { "Ref" : "ws1" },{ "Ref" : "ws2" } ],
+
+        "Listeners" : [ 
+          {
+            "LoadBalancerPort" : "80",
+            "InstancePort" : "8080",
+            "Protocol" : "HTTP"
+          },
+          {
+            "LoadBalancerPort" : "443",
+            "InstancePort" : "8443",
+            "Protocol" : "HTTP"
+          }
+        ],
+
+        "HealthCheck" : {
+          "Target" : "HTTP:8080/",
+          "HealthyThreshold" : "3",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "30",
+          "Timeout" : "5"
+        }
+
+      }
+    },
+
+    "ws1" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "SecurityGroups" : [ { "Ref" : "defaultSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : "ami-7a11e213",
+        "InstanceType" : "t1.micro"
+      }
+    },
+
+    "ws2" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "SecurityGroups" : [ { "Ref" : "defaultSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : "ami-7a11e213",
+        "InstanceType" : "t1.micro"
+      }
+    },
+
+    "defaultSG" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "default",
+        "SecurityGroupIngress" : [ {
+          "IpProtocol" : "tcp",
+          "FromPort" : "22",
+          "ToPort" : "22",
+          "CidrIp" : "0.0.0.0/0"
+        },
+        {
+          "IpProtocol" : "tcp",
+          "FromPort" : "8080",
+          "ToPort" : "8080",
+          "CidrIp" : "0.0.0.0/0"
+        } ]
+      }
+    }
+  }
+}
