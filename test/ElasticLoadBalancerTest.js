@@ -1,4 +1,4 @@
-AutoMate.EC2.build("load balancer test", {
+AutoMate.generate("load balancer test", {
   parameters: function() { 
       string("KeyName", "key name");
   },
@@ -37,6 +37,5 @@ AutoMate.EC2.build("load balancer test", {
         timeout: "5"
       }
     });
-
   }
 });

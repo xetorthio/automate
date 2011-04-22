@@ -1,4 +1,4 @@
-AutoMate.EC2.build("simple test", {
+AutoMate.generate("simple test", {
   parameters: function() { 
       string("WebServerPort", "port of the web server", "8888");
       string("KeyName", "key name");
@@ -18,6 +18,6 @@ AutoMate.EC2.build("simple test", {
       keyName: params.KeyName
     });
     
-    var eip= elasticIp("EIP", ws);
+    var eip = elasticIp("EIP", ws);
   }
 });
