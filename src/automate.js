@@ -1,4 +1,3 @@
-
 function AM_Template(desc) {
   this.description = desc;
   this.resources = {};
@@ -134,9 +133,20 @@ AutoMate.EC2._unRef = function(o) {
     throw "The object to unref is null!!";
 }
 
+AutoMate.EC2._userDataUnRef = function(list, name, value) {
+  if(value instanceof AM_Instance) {
+    list.push({"Fn::Join": ["", [name+".publicIp=", {"Fn::GetAtt" : [value.name, "PublicIp"] } ] ]});
+    list.push({"Fn::Join": ["", [name+".privateIp=", {"Fn::GetAtt" : [value.name, "PrivateIp"] } ] ]});
+  } else if(value instanceof AM_StringParameter){
+    list.push({"Fn::Join": ["", [name+"=", {"Ref" : value.name }]]});
+  } else {  // Literal
+    list.push(name+"="+value);
+  }
+}
 
 AutoMate.EC2.build = function(template) {
   var unRef = AutoMate.EC2._unRef;
+  var userDataUnRef = AutoMate.EC2._userDataUnRef;
   var model = {"AWSTemplateFormatVersion": "2010-09-09",  "Description" : template.description, "Resources" : {}, "Parameters" : {} };
 
   for(var pk in template.parameters){
@@ -172,6 +182,20 @@ AutoMate.EC2.build = function(template) {
       for(var sgi=0; sgi<rv.securityGroups.length; sgi++) {
         model.Resources[rk].Properties.SecurityGroups.push(unRef(rv.securityGroups[sgi]));
       } 
+
+      if(rv.userData){
+        model.Resources[rk].Properties.UserData = {
+            "Fn::Base64": {
+              "Fn::Join": ["\n", []]
+            }
+        };
+
+        var udl = model.Resources[rk].Properties.UserData["Fn::Base64"]["Fn::Join"][1];
+
+        for(var udk in rv.userData) {
+          userDataUnRef(udl, udk, rv.userData[udk]);
+        }
+      }
     } else if(rv instanceof AM_SecurityGroup) {
       model.Resources[rk] = {
         "Type":"AWS::EC2::SecurityGroup",
@@ -239,11 +263,6 @@ AutoMate.EC2.build = function(template) {
 }
 
 // This is just to test using node.js
-
 if(typeof(exports) !== 'undefined' && exports !== null) {
 	exports.AutoMate=AutoMate;
 }
-
-
-
-

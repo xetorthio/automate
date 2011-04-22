@@ -1,0 +1,80 @@
+{
+ "AWSTemplateFormatVersion" : "2010-09-09",
+
+ "Description" : "simple test",
+
+ "Parameters" : {
+   "WebServerPort" : {
+     "Description" : "port of the web server",
+     "Type" : "String",
+     "Default" : "8888"
+   },
+
+   "KeyName" : {
+     "Description" : "key name",
+     "Type" : "String"
+   }
+ },
+
+ "Resources" : {
+
+   "defaultSG" : {
+     "Type" : "AWS::EC2::SecurityGroup",
+     "Properties" : {
+       "GroupDescription" : "default sg",
+       "SecurityGroupIngress" : [ {
+         "IpProtocol" : "tcp",
+         "FromPort" : "22",
+         "ToPort" : "22",
+         "CidrIp" : "0.0.0.0/0"
+       },
+       {
+         "IpProtocol" : "tcp",
+         "FromPort" : { "Ref" : "WebServerPort" },
+         "ToPort" : { "Ref" : "WebServerPort" },
+         "CidrIp" : "0.0.0.0/0"
+       } ]
+     }
+   },
+
+
+   "redis" : {
+     "Type" : "AWS::EC2::Instance",
+     "Properties" : {
+       "SecurityGroups" : [ { "Ref" : "defaultSG" } ],
+       "KeyName" : { "Ref" : "KeyName" },
+       "ImageId" : "ami-7a11e213",
+       "InstanceType" : "t1.micro"
+     }
+   },
+
+
+   "ws" : {
+     "Type" : "AWS::EC2::Instance",
+     "Properties" : {
+       "SecurityGroups" : [ { "Ref" : "defaultSG" } ],
+       "KeyName" : { "Ref" : "KeyName" },
+       "ImageId" : "ami-7a11e213",
+       "InstanceType" : "t1.micro",
+       "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": ["\n", [
+              {"Fn::Join": ["", ["redisMaster.publicIp=", {"Fn::GetAtt" : ["redis", "PublicIp"] } ] ]},
+              {"Fn::Join": ["", ["redisMaster.privateIp=", {"Fn::GetAtt" : ["redis", "PrivateIp"] } ] ]},
+              "redisMasterPort=6379",
+              {"Fn::Join": ["", ["tomcatPort=", {"Ref" : "WebServerPort" }]]}
+            ]]
+          }
+       }
+     }
+   },
+
+
+   "EIP" : {
+     "Type" : "AWS::EC2::EIP",
+     "Properties" : {
+       "InstanceId" : { "Ref" : "ws" }
+     }
+   }
+ }
+}
