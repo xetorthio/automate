@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>AutoMate viewer (beta)</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script src="./arbor.js"></script>  
+    <script src="../src/automate.js"></script>  
+    <style>
+      body {
+        width: 100%;
+        height: 100%;
+      }
+      section#view canvas {
+        border: 1px solid #0a5c89;
+      }
+      section#dsl textarea {
+        display: block;
+        height: 200px;
+        width: 1024px;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="dsl">
+      <textarea></textarea>
+      <input type="button" value="Process" id="process" />
+    </section>
+    <section id="view">
+      <canvas height="300" width="1024"></canvas>
+    </section>
+    <script>
+      $(document).ready(function() {
+
+        var sys = arbor.ParticleSystem();
+        var canvas = $('section#view canvas').get(0);
+        var ctx = canvas.getContext("2d");
+
+        sys.renderer = {
+          init: function(system) {
+            sys = system;
+            sys.screenSize(canvas.width, canvas.height);
+            ctx.font = '20px sans-serif';
+          },
+          redraw: function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            sys.eachEdge(function(edge, pt1, pt2) {
+              ctx.beginPath();
+              ctx.strokeStyle = "#F0D0D0";
+              ctx.moveTo(pt1.x, pt1.y);
+              ctx.lineTo(pt2.x, pt2.y);
+              ctx.closePath();
+              ctx.stroke();
+
+            }); 
+
+            sys.eachNode(function(node, pt) {
+              var text = node.name;
+              var tm = ctx.measureText(text);
+              var space = 6;
+              var fontSize = 20;
+              var x1 = pt.x-(space/2);
+              var y1 = pt.y-fontSize;
+
+              ctx.fillStyle = "#E0E0E0";
+              ctx.fillRect(x1, y1, tm.width+space, fontSize+space);
+
+              ctx.strokeStyle = "#AAAAAA";
+              ctx.strokeRect(x1, y1, tm.width+space, fontSize+space);
+
+              ctx.fillStyle = "black";
+              ctx.fillText(text, pt.x, pt.y);
+            }); 
+          }
+        };
+
+        $('#process').click(function() {
+          var model = eval($('section#dsl textarea').val());
+          $.each(model.resources, function(index, value) {
+            if(value instanceof AM_LoadBalancer ||value instanceof AM_Instance) {
+              sys.addNode(value.name);
+            }
+          });
+
+          $.each(model.resources, function(index, value) {
+
+            if(value instanceof AM_LoadBalancer) {
+              for(var i in value.instances){
+                console.log(value);
+                console.log(value.instances[i]);
+                sys.addEdge(value.name, value.instances[i].name);
+              }
+            } else if(value instanceof AM_Instance) {
+              if(value.userData) {
+                for(var reference in value.userData) {
+                  sys.addEdge(value.name, value.userData[reference].name);
+                }
+              }
+            }
+                
+
+          });
+        });
+      }); 
+    </script>
+  </body>
+</html>
