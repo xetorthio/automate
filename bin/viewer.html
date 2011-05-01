@@ -75,31 +75,35 @@
           }
         };
 
+        var nodes = [];
         $('#process').click(function() {
+          for(var n in nodes) {
+            sys.pruneNode(nodes[n]);
+          }
+          nodes = [];
           var model = eval($('section#dsl textarea').val());
           $.each(model.resources, function(index, value) {
             if(value instanceof AM_LoadBalancer ||value instanceof AM_Instance) {
               sys.addNode(value.name);
+              nodes.push(value.name);
             }
           });
 
           $.each(model.resources, function(index, value) {
-
             if(value instanceof AM_LoadBalancer) {
               for(var i in value.instances){
-                console.log(value);
-                console.log(value.instances[i]);
                 sys.addEdge(value.name, value.instances[i].name);
               }
             } else if(value instanceof AM_Instance) {
               if(value.userData) {
                 for(var reference in value.userData) {
-                  sys.addEdge(value.name, value.userData[reference].name);
+                  var ref = value.userData[reference];
+                  if(ref instanceof AM_Instance) {
+                    sys.addEdge(value.name, value.userData[reference].name);
+                  }
                 }
               }
             }
-                
-
           });
         });
       }); 
