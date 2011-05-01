@@ -1,0 +1,22 @@
+documentation
+-------------
+- GitHub readme
+  * Reading userdata
+- Wizard page
+
+viewer
+------
+- Add template title
+- Add arrows
+- Add mouse dragging
+- Different symbol to different components
+- Better look and feel
+- EC2 Deploy & JSon generation
+- Error management
+
+
+engine
+------
+- Error management
+- Implement some components
+  http://docs.amazonwebservices.com/AWSCloudFormation/latest/UserGuide/
