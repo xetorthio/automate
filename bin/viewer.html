@@ -3,9 +3,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>AutoMate viewer (beta)</title>
+    <link rel="stylesheet" href="../lib/codemirror.css">
+    <link rel="stylesheet" href="../lib/javascript.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
     <script src="./arbor.js"></script>  
     <script src="../src/automate.js"></script>  
+    <script src="../lib/codemirror.js"></script>
+    <script src="../lib/javascript.js"></script>
     <style>
       body {
         width: 100%;
@@ -22,10 +26,6 @@
     </style>
   </head>
   <body>
-    <section id="dsl">
-      <textarea></textarea>
-      <input type="button" value="Process" id="process" />
-    </section>
     <section id="view">
       <canvas height="300" width="1024"></canvas>
     </section>
@@ -76,12 +76,12 @@
         };
 
         var nodes = [];
-        $('#process').click(function() {
+        function process(value) {
           for(var n in nodes) {
             sys.pruneNode(nodes[n]);
           }
           nodes = [];
-          var model = eval($('section#dsl textarea').val());
+          var model = eval(value);
           $.each(model.resources, function(index, value) {
             if(value instanceof AM_LoadBalancer ||value instanceof AM_Instance) {
               sys.addNode(value.name);
@@ -105,6 +105,16 @@
               }
             }
           });
+        }
+        var myCodeMirror = CodeMirror(document.body, {
+          mode:  "javascript",
+          lineNumbers: true,
+          onChange: function(ed) {
+              try {
+                process(ed.getValue());
+              } catch(ex) {
+              }
+          }
         });
       }); 
     </script>
