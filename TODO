@@ -6,13 +6,12 @@ documentation
 
 viewer
 ------
-- Add template title
 - Add arrows
 - Add mouse dragging
-- Different symbol to different components
 - Better look and feel
 - EC2 Deploy & JSon generation
 - Error management
+- Max time between refresh. (Dirty bit).
 
 
 engine
