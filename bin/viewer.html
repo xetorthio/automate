@@ -15,23 +15,32 @@
         width: 100%;
         height: 100%;
       }
-      section#view canvas {
-        border: 1px solid #0a5c89;
+      section#view {
+        position: absolute;
+        height: 100%;
+        width: 50%;
+        right: 0;
+        top: 0;
       }
-      section#dsl textarea {
-        display: block;
-        height: 200px;
-        width: 1024px;
+      section#view canvas {
+      }
+      section#dsl {
+        position: absolute;
+        height: 100%;
+        width: 50%;
+        left: 0;
+        top: 0;
       }
     </style>
   </head>
   <body>
+    <section id="dsl">
+    </section>
     <section id="view">
-      <canvas height="300" width="1024"></canvas>
+      <canvas id="render-view" width="640" height="600"></canvas>
     </section>
     <script>
       $(document).ready(function() {
-
         var sys = arbor.ParticleSystem();
         var canvas = $('section#view canvas').get(0);
         var ctx = canvas.getContext("2d");
@@ -125,7 +134,7 @@
             }
           });
         }
-        var myCodeMirror = CodeMirror(document.body, {
+        var myCodeMirror = CodeMirror($('#dsl').get(0), {
           mode:  "javascript",
           lineNumbers: true,
           onChange: function(ed) {
@@ -133,7 +142,8 @@
                 process(ed.getValue());
               } catch(ex) {
               }
-          }
+          },
+          value: 'AutoMate.generate("change this title", {\n\tparameters: function() {\n\t},\n\tresources: function(params) {\n\t}\n});'
         });
       }); 
     </script>
