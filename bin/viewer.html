@@ -35,15 +35,20 @@
         var sys = arbor.ParticleSystem();
         var canvas = $('section#view canvas').get(0);
         var ctx = canvas.getContext("2d");
+        var lbIcon = null;
+        var wsIcon = null;
 
         sys.renderer = {
           init: function(system) {
             sys = system;
             sys.screenSize(canvas.width, canvas.height);
             ctx.font = '20px sans-serif';
+            lbIcon = $('<img src="http://www.pacsoftllc.com/images/partner_imgs/datacore/functions_icon_loadbal.png" />').get(0);
+            wsIcon = $('<img src="http://www.nowiw.com/image/logo/server_icons_web_server.png" />').get(0);
           },
           redraw: function() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             var titleWidth = ctx.measureText(sys.model.description).width;
             ctx.fillStyle = "#99FFCC";
             ctx.fillRect(0, 0, titleWidth+6, 25);
@@ -70,11 +75,17 @@
               var x1 = pt.x-(space/2);
               var y1 = pt.y-fontSize;
 
-              ctx.fillStyle = "#E0E0E0";
-              ctx.fillRect(x1, y1, tm.width+space, fontSize+space);
+              if(node.data instanceof AM_LoadBalancer) {
+                ctx.drawImage(lbIcon, x1, y1, 75, 75);
+              } else if(node.data instanceof AM_Instance) {
+                ctx.drawImage(wsIcon, x1, y1, 75, 75);
+              } else {
+                ctx.fillStyle = "#E0E0E0";
+                ctx.fillRect(x1, y1, tm.width+space, fontSize+space);
 
-              ctx.strokeStyle = "#AAAAAA";
-              ctx.strokeRect(x1, y1, tm.width+space, fontSize+space);
+                ctx.strokeStyle = "#AAAAAA";
+                ctx.strokeRect(x1, y1, tm.width+space, fontSize+space);
+              }
 
               ctx.fillStyle = "black";
               ctx.fillText(text, pt.x, pt.y);
@@ -92,7 +103,7 @@
           sys.model = model;
           $.each(model.resources, function(index, value) {
             if(value instanceof AM_LoadBalancer ||value instanceof AM_Instance) {
-              sys.addNode(value.name);
+              sys.addNode(value.name, value);
               nodes.push(value.name);
             }
           });
